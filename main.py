@@ -13,6 +13,7 @@ for i in range(len(start)):
 num = start[int(input("Kads skaitlis ? : "))-1] # Cilvēks-spēlētājs izvēlas, ar kuru no saģenerētajiem skaitļiem viņš vēlas sākt spēli.
 #
 
+
 class gameNode:
     def __init__(self, number, p1, p2, nextTurn, left, right):      # p1 = player, p2 = computer
         self.number = number                                        # p1 | num | p2
@@ -22,7 +23,32 @@ class gameNode:
         self.left = left                                           
         self.right = right                                       
 
+
+class Algorythm:
+    def __init__(self, number):
+        self.root = self.build(gameNode(number, 0, 0, "player", None, None))
+        self.print_tree(self.root)
+        
+    def build(self, node):
+        nt = "computer"
+        if(node.number % 2 == 0):
+            node.left = gameNode(node.number//2, node.p1, node.p2, nt, None, None)
+            self.build(node.left)
+        if(node.number % 3 == 0):
+            node.right = gameNode(node.number//3, node.p1, node.p2, nt, None, None)
+            self.build(node.right)
+        return node
+    
+
+    # CHAT GPT
+    def print_tree(self, node, level=0):
+        if node is not None:
+            self.print_tree(node.right, level + 1)
+            print(' ' * 4 * level + '->', node.number)
+            self.print_tree(node.left, level + 1)
+
 # Game
+alg = Algorythm(num)
 
 root = gameNode(num, 0, 0, "player", None, None)  
 
@@ -40,7 +66,7 @@ while(current.number > 10 and (current.number % 2 == 0 or current.number % 3 == 
                 current = current.left                                                                              # nakamais gajiens
             case "3":
                 current.number//=3
-                current.right = gameNode(current.number, current.p1, current.p2+3, "computer", None, None)          # goes right
+                current.right = gameNode(current.number, current.p1+3, current.p2, "computer", None, None)          # goes right
                 current = current.right
     else:
 
@@ -56,7 +82,7 @@ while(current.number > 10 and (current.number % 2 == 0 or current.number % 3 == 
                 current = current.left
             case "3":
                 current.number//=3
-                current.right = gameNode(current.number, current.p1+3, current.p2, "player", None, None)
+                current.right = gameNode(current.number, current.p1, current.p2+3, "player", None, None)
                 current = current.right
 
 
