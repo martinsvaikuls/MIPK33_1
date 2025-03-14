@@ -30,7 +30,7 @@ class Algorythm:
         self.print_tree(self.root)
         
     def build(self, node):
-        nt = "computer"
+        nt = "computer"        # ja bus svarigi
         if(node.number % 2 == 0):
             node.left = gameNode(node.number//2, node.p1, node.p2, nt, None, None)
             self.build(node.left)
@@ -40,12 +40,13 @@ class Algorythm:
         return node
     
 
-    # CHAT GPT
-    def print_tree(self, node, level=0):
+    # --- CHAT GPT
+    def print_tree(self, node, level=0): 
         if node is not None:
             self.print_tree(node.right, level + 1)
             print(' ' * 4 * level + '->', node.number)
             self.print_tree(node.left, level + 1)
+     # --- CHAT GPT
 
 # Game
 alg = Algorythm(num)
