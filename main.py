@@ -10,21 +10,8 @@ for i in range(5):
 for i in range(len(start)):
     print(f"Sakuma skaitlis {i+1} = {start[i]}")
 
-num = start[int(input())-1] # Cilvēks-spēlētājs izvēlas, ar kuru no saģenerētajiem skaitļiem viņš vēlas sākt spēli.
-print(num)
-
+num = start[int(input("Kads skaitlis ? : "))-1] # Cilvēks-spēlētājs izvēlas, ar kuru no saģenerētajiem skaitļiem viņš vēlas sākt spēli.
 #
-
-class algorythm:
-    def __init__(self, num):
-        self.num = num
-        # self.root = tree(gameNode(num, 0, 0, "0", None, None))
-        # building a tree
-        
-
-    def find(number):
-        print("aaa")    
-
 
 class gameNode:
     def __init__(self, number, p1, p2, nextTurn, left, right):      # p1 = player, p2 = computer
@@ -36,38 +23,45 @@ class gameNode:
         self.right = right                                       
 
 # Game
-alg = algorythm(num)
 
-root = gameNode(num, 0, 0, "player", None, None)
+root = gameNode(num, 0, 0, "player", None, None)  
 
 current = root
-while(current.number > 10):        
-    if(current.nextTurn == "player"):
-        print(f"Number = {current.number}")
-        print("Select 2 or 3 :")        # dalitajs
-        dal = input()
-        #if(num % dal != 0):             # Ceru ka nevajag apstradat kludas
+while(current.number > 10 and (current.number % 2 == 0 or current.number % 3 == 0)):    # >10 , nevar sadalit ar 2 vai 3 
+    print(f"Next turn : {current.nextTurn}")
+    if(current.nextTurn == "player"):           # kas speles saja gajiena
+        print(f"Number = {current.number}")     
+        dal = input("Select 2 or 3 : ")         # dalitajs
+        #if(num % dal != 0):                    # Ceru ka nevajag apstradat kludas
         match dal:
             case "2": 
-                current.number/=2
-                current.left = gameNode(current.number, current.p1, current.p2+2, "computer", None, None)
-                current = current.left
+                current.number//=2                                                                                  # skaitlis dalas ar 2
+                current.left = gameNode(current.number, current.p1, current.p2+2, "computer", None, None)           # jauns mezgls nakamajam gajienam
+                current = current.left                                                                              # nakamais gajiens
             case "3":
-                current.number/=3
-                current.right = gameNode(current.number, current.p1, current.p2+3, "computer", None, None)
+                current.number//=3
+                current.right = gameNode(current.number, current.p1, current.p2+3, "computer", None, None)          # goes right
                 current = current.right
     else:
-        # computer to answer
-        # alg.find(current.number)
-        #
-        #
-        # TEST CASE
 
-        if(current.number % 2 == 0):
-            current.number/=2
-            current.left = gameNode(current.number, current.p1+2, current.p2, "player", None, None)
-            current = current.left
-        else:
-            current.number/=3
-            current.right = gameNode(current.number, current.p1+2, current.p2, "player", None, None)
-            current = current.right
+        # computer to answer
+        # !
+
+        print(f"Number = {current.number}")
+        dal = input("Select 2 or 3 : ")
+        match dal:
+            case "2": 
+                current.number//=2
+                current.left = gameNode(current.number, current.p1+2, current.p2, "player", None, None)
+                current = current.left
+            case "3":
+                current.number//=3
+                current.right = gameNode(current.number, current.p1+3, current.p2, "player", None, None)
+                current = current.right
+
+
+print("---END---")
+print("Numurs ir mazaks par 10 vai to nevar dalit ar 2 vai 3")
+print(f"Speletaja punkti : {current.p1}")
+print(f"Datora punkti : {current.p2}")
+
