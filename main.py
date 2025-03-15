@@ -131,11 +131,8 @@ def startGame():
         try:
             izvele = int(input())
             
-            if (izvele == 1):
-                ai_algorythm = 1
-                break
-            elif (izvele == 2):
-                ai_algorythm = 2
+            if (izvele == 1 or izvele == 2):
+                ai_algorythm = izvele
                 break
             else:
                 print(ERR_WRNG_INPUT)
