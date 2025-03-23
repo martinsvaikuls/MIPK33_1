@@ -1,4 +1,5 @@
 import tkinter as tk
+import random
 from main import GameEngine  # Importē spēles dzinēja klasi no main.py
 
 # spēle jāpalaiž no šī faila 
@@ -8,7 +9,7 @@ class GameGUI:
         # Inicializē GUI ar norādīto Tkinter logu (root)
         self.root = root
         self.root.title("Number Division Game")  # Iestata loga nosaukumu
-        self.root.geometry("500x500")  # Iestata loga izmērus
+        self.root.geometry("500x590")  # Iestata loga izmērus
         
         # Ģenerē sākuma skaitļus (5 skaitļi no 10000 līdz 20000, kuri dalās ar 2 un 3)
         self.generated_numbers = self.generate_starting_numbers()
@@ -20,7 +21,10 @@ class GameGUI:
     
     def generate_starting_numbers(self):
         # Atgriež 5 sākuma skaitļus, kas atbilst nosacījumiem (dalās ar 2 un 3)
-        return [n for n in range(10000, 20001) if n % 2 == 0 and n % 3 == 0][:5]
+        start = []
+        for i in range(5):
+            start.append(6*random.randint(1667, 3333))
+        return start
     
     def setup_ui(self):
         # Galvenā nosaukuma etiķete
@@ -41,6 +45,14 @@ class GameGUI:
         # Izveido radio pogas algoritmu izvēlei
         tk.Radiobutton(algo_frame, text="Minimax", variable=self.algorithm_var, value=1).pack(side=tk.LEFT, padx=5)
         tk.Radiobutton(algo_frame, text="Alpha-Beta", variable=self.algorithm_var, value=2).pack(side=tk.LEFT, padx=5)
+
+        tk.Label(self.root, text="Izvelaties kurš spēlē kā spēlētājs:").pack(pady=(10, 0))
+        self.player_vs_ai = tk.BooleanVar(value=True)  # Noklusēti: 1 = Minimax, 2 = Alpha-Beta
+        
+        player1_frame = tk.Frame(self.root)
+        player1_frame.pack()
+        tk.Radiobutton(player1_frame, text="Speletajs", variable=self.player_vs_ai, value=True).pack(side=tk.LEFT, padx=5)
+        tk.Radiobutton(player1_frame, text="Dators", variable=self.player_vs_ai, value=False).pack(side=tk.LEFT, padx=5)
         
         # Poga, lai uzsāktu spēli
         self.startButton = tk.Button(self.root, text="Start Game", command=self.start_game)
@@ -74,7 +86,7 @@ class GameGUI:
         # Izveido pogas dalīšanai ar 2 un 3; sākotnēji tās ir atspējotas
         self.buttonDivide2 = tk.Button(self.button, text="Divide by 2", state=tk.DISABLED, command=lambda: self.make_move(2))
         self.buttonDivide3 = tk.Button(self.button, text="Divide by 3", state=tk.DISABLED, command=lambda: self.make_move(3))
-        
+               
         # Novieto pogas režģī
         self.buttonDivide2.grid(row=0, column=0, padx=5, pady=5)
         self.buttonDivide3.grid(row=0, column=1, padx=5, pady=5)
@@ -86,11 +98,19 @@ class GameGUI:
     def start_game(self):
         # Saglabā izvēlēto sākuma skaitli un algoritma vērtību
         start_number = self.start_number_var.get()
+        start_number = 19440
         selected_algorithm = self.algorithm_var.get()  # Iegūst vērtību: 1 = Minimax, 2 = Alpha-Beta
+        player_vs_ai = self.player_vs_ai.get()
         # Inicializē spēles dzinēju (GameEngine) ar izvēlēto sākuma skaitli un algoritmu
         self.engine = GameEngine(start_number, algorithm=selected_algorithm, player_vs_ai=True)
         self.update_ui()  # Atjaunina GUI, lai parādītu spēles sākuma stāvokli
-        self.enable_move_buttons()  # Ieslēdz gājiena pogas
+        print(player_vs_ai)
+        if player_vs_ai:
+            
+            self.enable_move_buttons()  # Ieslēdz gājiena pogas
+        else:
+            while not self.engine.is_game_over():
+                self.computer_turn()
     
     def enable_move_buttons(self):
         # Ieslēdz pogas, lai spēlētājs varētu veikt gājienus
@@ -104,21 +124,25 @@ class GameGUI:
     
     def make_move(self, divisor):
         # Veic spēlētāja gājienu ar norādīto dalītāju (2 vai 3)
-        if self.engine and self.engine.make_player_move(divisor):
-            self.update_ui()  # Atjaunina GUI pēc spēlētāja gājiena
-            if self.engine.is_game_over():
-                self.end_game()  # Pārbauda, vai spēle ir beigusies
-            else:
-                # Dod datoram nedaudz laika (500 ms), pirms izsauc datorgājienu
-                self.root.after(500, self.computer_turn)
+        if self.engine:
+            if self.engine.make_player_move(divisor):
+                self.update_ui()  # Atjaunina GUI pēc spēlētāja gājiena
+                if self.engine.is_game_over():
+                    self.end_game()  # Pārbauda, vai spēle ir beigusies
+                else:
+                    # Dod datoram nedaudz laika (500 ms), pirms izsauc datorgājienu
+                    self.root.after(500, self.computer_turn)
     
     def computer_turn(self):
         # Veic datorgājienu
+        
         if self.engine:
             self.engine.make_ai_move()
+            
             self.update_ui()  # Atjaunina GUI pēc datorgājiena
             if self.engine.is_game_over():
                 self.end_game()  # Ja spēle ir beigusies, izsauc beigu funkciju
+        
     
     def update_ui(self):
         # Iegūst spēles stāvokli no GameEngine un atjaunina GUI elementus
@@ -130,6 +154,7 @@ class GameGUI:
     
     def end_game(self):
         # Kad spēle ir beigusies, atspējo gājiena pogas un parāda rezultātu
+        
         self.disable_move_buttons()
         state = self.engine.get_state()
         winner = "Player" if state["player_score"] > state["computer_score"] else "Computer"
@@ -142,6 +167,11 @@ class GameGUI:
         self.computer_score.config(text="0")
         self.current_player.config(text="--")
         self.disable_move_buttons()
+        self.generated_numbers = self.generate_starting_numbers()
+        
+        ##!
+        self.setup_ui()
+
         self.engine = None  # Notīra esošo spēles dzinēju
 
 if __name__ == "__main__":

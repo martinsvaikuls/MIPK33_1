@@ -299,14 +299,14 @@ class GameEngine:
         # Inicializē spēles dzinēju ar sākuma skaitli, algoritma izvēli un spēles režīmu (cilvēks pret datoru)
         # algorithm: 1 = minimax, 2 = alphaBeta
         self.tree = gameTree(start_number)  # Izveido spēles koku, izmantojot start_number kā sākuma vērtību
-        self.current = self.tree.root      # Saglabā sākuma stāvokli no koka saknes
-        self.algorithm = algorithm         # Saglabā izvēlēto algoritmu (1 vai 2)
+        self.current = self.tree.root       # Saglabā sākuma stāvokli no koka saknes
         self.player_vs_ai = player_vs_ai    # Saglabā informāciju par to, vai spēle ir cilvēks pret datoru
+        self.algorithm = algorithm          # Saglabā izvēlēto algoritmu (1 vai 2)    
 
     def get_state(self):
         # Atgriež pašreizējo spēles stāvokli kā vārdnīcu, ko var izmantot GUI interfeisā
         return {
-            "number": self.current.number,         # Pašreizējais skaitlis
+            "number": self.current.number,           # Pašreizējais skaitlis
             "player_score": self.current.p1,         # Spēlētāja punkti
             "computer_score": self.current.p2,       # Datora punkti
             "turn": self.current.nextTurn            # Kurš veic nākamo gājienu ("player" vai "computer")
@@ -318,9 +318,10 @@ class GameEngine:
         return self.current.number <= 10 or (self.current.number % 2 != 0 and self.current.number % 3 != 0)
 
     def make_player_move(self, divisor):
+        
         # Veic spēlētāja gājienu, ja tas ir atļauts:
         # Pārbauda, vai nākamais gājiens ir spēlētājam un vai pašreizējais skaitlis dalās ar norādīto divisor (2 vai 3).
-        if self.current.nextTurn == "player" and self.current.number % divisor == 0:
+        if self.current.nextTurn == "player" and self.current.number % divisor == 0 :
             self.current.number //= divisor  # Dalās ar divisor, atjaunojot skaitli
             # Pāriet uz atbilstošo apakšmezglu (koka mezglu) atkarībā no izvēlētā dalītāja
             if divisor == 2 and self.current.left is not None:
@@ -328,27 +329,33 @@ class GameEngine:
             elif divisor == 3 and self.current.right is not None:
                 self.current = self.current.right
             return True  # Gājiens veiksmīgi izpildīts
+      
         return False  # Ja nosacījumi netiek izpildīti, gājiens nav veiksmīgs
 
     def make_ai_move(self):
         # Veic datora (AI) gājienu, ja nākamais gājiens ir datoram
-        if self.current.nextTurn == "computer":
+        #if self.current.nextTurn == "computer":
             # Izvēlas algoritmu atkarībā no izvēles (1 = minimax, 2 = alphaBeta)
-            if self.algorithm == 1:
-                minimax(self.current, 4, False)  # Izsauc minimax algoritmu ar dziļumu 4
-            else:
-                alphaBeta(self.current, 4, False, -10000, 10000)  # Izsauc alphaBeta algoritmu ar dziļumu 4 un sākotnējiem alpha, beta vērtībām
-            
-            # Pārbauda, kurš apakšmezgls atbilst aprēķinātajam vērtējumam:
-            # Ja kreisais (dalīšana ar 2) apakšmezgls ir derīgs un tā dinamiskā vērtība sakrīt ar pašreizējo, tad veic gājienu
-            if self.current.left is not None and self.current.left.dynamicValue == self.current.dynamicValue:
-                self.current.number //= 2
-                self.current = self.current.left
-            # Pretējā gadījumā, ja labo (dalīšana ar 3) apakšmezgls atbilst, tad veic gājienu
-            elif self.current.right is not None and self.current.right.dynamicValue == self.current.dynamicValue:
-                self.current.number //= 3
-                self.current = self.current.right
+        isMaximising = False
+        if self.current.nextTurn == "computer":
+            isMaximising = False
+        else:
+            isMaximising = True
 
+        if self.algorithm == 1:
+            minimax(self.current, 4, isMaximising)  # Izsauc minimax algoritmu ar dziļumu 4
+        else:
+            alphaBeta(self.current, 4, isMaximising, -10000, 10000)  # Izsauc alphaBeta algoritmu ar dziļumu 4 un sākotnējiem alpha, beta vērtībām
+        
+        # Pārbauda, kurš apakšmezgls atbilst aprēķinātajam vērtējumam:
+        # Ja kreisais (dalīšana ar 2) apakšmezgls ir derīgs un tā dinamiskā vērtība sakrīt ar pašreizējo, tad veic gājienu
+        if self.current.left is not None and self.current.left.dynamicValue == self.current.dynamicValue:
+            self.current.number //= 2
+            self.current = self.current.left
+        # Pretējā gadījumā, ja labo (dalīšana ar 3) apakšmezgls atbilst, tad veic gājienu
+        elif self.current.right is not None and self.current.right.dynamicValue == self.current.dynamicValue:
+            self.current.number //= 3
+            self.current = self.current.right
+        
 if __name__ == '__main__':
     main()
-
