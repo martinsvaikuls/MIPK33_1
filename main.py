@@ -2,28 +2,51 @@ import random
 
 
 class gameNode:
-    def __init__(self, number, p1, p2, nextTurn, left, right):      # p1 = player, p2 = computer
+    def __init__(self, number, p1, p2, nextTurn, left, right, staticValue, dynamicValue):      # p1 = player, p2 = computer
         self.number = number                                        # p1 | num | p2
         self.p1 = p1                                                #  0 | 999 | 0
         self.p2 = p2                                                
         self.nextTurn = nextTurn    
         self.left = left                                           
-        self.right = right                                       
+        self.right = right
+        self.staticValue = staticValue
+        self.dynamicValue = dynamicValue
 
 
-class Algorythm:
+
+class gameTree:
     def __init__(self, number):
-        self.root = self.build(gameNode(number, 0, 0, "player", None, None))
+        self.root = self.build(gameNode(number, 0, 0, "player", None, None, 0, -3621), 1)
         self.print_tree(self.root)
-        
-    def build(self, node):
-        nt = "computer"        # ja bus svarigi
-        if(node.number % 2 == 0):
-            node.left = gameNode(node.number//2, node.p1, node.p2, nt, None, None)
-            self.build(node.left)
-        if(node.number % 3 == 0):
-            node.right = gameNode(node.number//3, node.p1, node.p2, nt, None, None)
-            self.build(node.right)
+    
+
+    def build(self, node, num):
+        gameList = ["player","computer"]
+                # ja bus svarigi
+        nt = gameList[num]
+        if (num == 0):
+            num = 1
+            if(node.number % 2 == 0):
+                staticValue = node.p1 - node.p2 + 0
+                node.left = gameNode(node.number//2, node.p1+2, node.p2, nt, None, None, staticValue, -3621)
+                self.build(node.left, num)
+
+            if(node.number % 3 == 0):
+                staticValue = node.p1 - node.p2 + 1
+                node.right = gameNode(node.number//3, node.p1, node.p2+3, nt, None, None, staticValue, -3621)
+                self.build(node.right, num)
+        else:
+            num = 0
+            if(node.number % 2 == 0):
+                staticValue = node.p1 - node.p2 + 0
+                node.left = gameNode(node.number//2, node.p1, node.p2+2, nt, None, None, staticValue, -3621)
+                self.build(node.left, num)
+
+            if(node.number % 3 == 0):
+                staticValue = node.p1 - node.p2 + 1
+                node.right = gameNode(node.number//3, node.p1+3, node.p2, nt, None, None, staticValue, -3621)
+                self.build(node.right, num)
+            
         return node
     
 
@@ -31,64 +54,103 @@ class Algorythm:
     def print_tree(self, node, level=0): 
         if node is not None:
             self.print_tree(node.right, level + 1)
-            print(' ' * 4 * level + '->', node.number)
+            print(' ' * 4 * level + '->', node.number, node.nextTurn, node.p1, node.p2)
             self.print_tree(node.left, level + 1)
      # --- CHAT GPT
 
 ERR_WRNG_INPUT = "Ludzu ievadiet pareizu ciparu"
-ALGORITMA_IZVELE = """Ludzu, izvelaties datora algoritmu
-MinMaks: 1
-Alfa-Beta: 2"""
+
 
 # Game
 def main():
     # speles uzsaksana
-    num, ai_algorythm = startGame()
+    num, ai_algorythm, isPlayerComputer = startGame()
     
-    alg = Algorythm(num)
-    root = gameNode(num, 0, 0, "player", None, None)  
-    current = root
+    alg = gameTree(num)
+    root = gameNode(num, 0, 0, "player", None, None, 0, -3621)  
+    current = alg.root
+    print(alg.root)
+    print(current.number)
 
+    
+    
 
     while(current.number > 10 and (current.number % 2 == 0 or current.number % 3 == 0)):    # >10 , nevar sadalit ar 2 vai 3 
         print(f"Next turn : {current.nextTurn}")
         print(f"Number = {current.number}")
         
-        
         dal = 0
-        while (True):
+
+        if (current.nextTurn == "computer"):
+            if (ai_algorythm == 1):
+                minimax(current, 4, False)
+            else:
+                alphaBeta(current, 4, False, -10000, 10000)
+
+
             try:
-                print("Izvēlaties dalītāju: ", end="")
-                dal = int(input())
-                
-                if (dal == 2 or dal == 3):
-                    if (current.number % dal == 0):
-                        break
-                else:
-                    print(ERR_WRNG_INPUT)
-            
-            except ValueError:
-                continue
+                if (current.left.dynamicValue != -3621):
+                    if (current.dynamicValue == current.left.dynamicValue):
+                        dal = 2
+            except Exception as err:
+                print(err)
 
-        current.number//=dal # samazina skaitli ar dalitaju
-
-        if(current.nextTurn == "player"):           # kas speles saja gajiena
-            match dal:
-                case 2:                                                                               # skaitlis dalas ar 2
-                    current.left = gameNode(current.number, current.p1, current.p2+dal, "computer", None, None)           # jauns mezgls nakamajam gajienam
-                    current = current.left                                                                              # nakamais gajiens
-                case 3:
-                    current.right = gameNode(current.number, current.p1+dal, current.p2, "computer", None, None)          # goes right
-                    current = current.right
+            try:
+                if (current.right.dynamicValue != -3621):
+                    if (current.dynamicValue == current.right.dynamicValue):
+                        dal = 3
+            except Exception as err:
+                print(err)
 
         else:
-            match dal:
-                case 2: 
-                    current.left = gameNode(current.number, current.p1+dal, current.p2, "player", None, None)
-                    current = current.left
-                case 3:
-                    current.right = gameNode(current.number, current.p1, current.p2+dal, "player", None, None)
-                    current = current.right
+            if (not isPlayerComputer):
+                while (True):
+                    try:
+                        print("Izvēlaties dalītāju: ", end="")
+                        dal = int(input())
+                        
+                        if (dal == 2 or dal == 3):
+                            if (current.number % dal == 0):
+                                break
+                        else:
+                            print(ERR_WRNG_INPUT)
+                    
+                    except ValueError:
+                        continue
+            
+            else:
+                if (ai_algorythm == 1):
+                    minimax(current, 4, True)
+                else:
+                    alphaBeta(current, 4, True, -10000, 10000)
+            
+                try:
+                    if (current.left.dynamicValue != -3621):
+                        if (current.dynamicValue == current.left.dynamicValue):
+                            dal = 2
+                except Exception as err:
+                    print(err)
+
+                try:
+                    if (current.right.dynamicValue != -3621):
+                        if (current.dynamicValue == current.right.dynamicValue):
+                            dal = 3
+                except Exception as err:
+                    print(err)
+
+
+        
+        current.number//=dal # samazina skaitli ar dalitaju
+        match dal:
+            case 2:                                                                               # skaitlis dalas ar 2
+                current = current.left                                                                              # nakamais gajiens
+            case 3:
+                current = current.right
+
+
+        print(f"Speletaja punkti : {current.p1}")
+        print(f"Datora punkti : {current.p2}")
+
         
 
     print("---END---")
@@ -119,6 +181,8 @@ def startGame():
             
             if (izvele > 0 and izvele < 6):
                 num = start[izvele-1] 
+                num = 19440#test
+                #num = 13014#test2
                 break
             else:
                 print(ERR_WRNG_INPUT)
@@ -126,7 +190,9 @@ def startGame():
             continue
 
     
-    print(ALGORITMA_IZVELE)
+    print("""Ludzu, izvelaties datora algoritmu
+MinMaks: 1
+Alfa-Beta: 2""")
     while (True):
         try:
             izvele = int(input())
@@ -139,8 +205,88 @@ def startGame():
         except ValueError:
             continue
 
-    return num, ai_algorythm
+    print("""Cilveks pret Datoru: 1
+Dators pret Datoru: 2""")
+    while (True):
+        try:
+            izvele = int(input())
+            
+            if (izvele == 1 or izvele == 2):
+                isPlayerComputer = izvele-1
+                break
+            else:
+                print(ERR_WRNG_INPUT)
+        except ValueError:
+            continue
 
+    return num, ai_algorythm, isPlayerComputer
+
+
+# Nemts no interneta video
+def minimax(node, depth, isMaximisingPlayer):
+    if (depth == 0 or ((node.left == None and node.right == None))):
+        node.dynamicValue = node.staticValue
+        return node.staticValue
+    
+    if isMaximisingPlayer:
+        maxEval = -10000
+        if (node.left != None):
+            eval = minimax(node.left, depth - 1, False)
+            maxEval = max(maxEval, eval)
+        
+        if (node.right != None):
+            eval = minimax(node.right, depth - 1, False)
+            maxEval = max(maxEval, eval)
+        node.dynamicValue = maxEval
+        return maxEval
+    
+    else:
+        minEval = 10000
+        if (node.left != None):
+            eval = minimax(node.left, depth - 1, True)
+            minEval = min(minEval, eval)
+        
+        if (node.right != None):
+            eval = minimax(node.right, depth - 1, True)
+            minEval = min(minEval, eval)
+        node.dynamicValue = minEval
+        return minEval
+    
+
+def alphaBeta(node, depth, isMaximisingPlayer, alpha, beta):
+    if (depth == 0 or ((node.left == None and node.right == None))):
+            node.dynamicValue = node.staticValue
+            return node.staticValue
+        
+    if isMaximisingPlayer:
+        maxEval = -10000
+        if (node.left != None):
+            eval = alphaBeta(node.left, depth - 1, False, alpha, beta)
+            maxEval = max(maxEval, eval)
+            beta = max(beta, eval)
+        
+        if (not(beta <= alpha)):
+            if (node.right != None):
+                eval = alphaBeta(node.right, depth - 1, False, alpha, beta)
+                maxEval = max(maxEval, eval)
+        
+        node.dynamicValue = maxEval
+        return maxEval
+    
+    else:
+        minEval = 10000
+        if (node.left != None):
+            eval = alphaBeta(node.left, depth - 1, True, alpha, beta)
+            minEval = min(minEval, eval)
+            beta = min(beta, eval)
+        
+        if (not(beta <= alpha)):
+            if (node.right != None):
+                eval = alphaBeta(node.right, depth - 1, True, alpha, beta)
+                minEval = min(minEval, eval)
+        
+        node.dynamicValue = minEval
+        return minEval
 
 
 main()
