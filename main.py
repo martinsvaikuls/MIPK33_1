@@ -181,7 +181,7 @@ def startGame():
             
             if (izvele > 0 and izvele < 6):
                 num = start[izvele-1] 
-                num = 19440#test
+                #num = 19440#test
                 #num = 13014#test2
                 break
             else:
