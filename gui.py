@@ -28,32 +28,39 @@ class GameGUI:
     
     def setup_ui(self):
         # Galvenā nosaukuma etiķete
-        tk.Label(self.root, text="Number Division Game", font=("Arial", 16)).pack(pady=10)
+        self.frameNums = tk.Frame(self.root)
+        self.frameNums.pack()
+
+        tk.Label(self.frameNums, text="Number Division Game", font=("Arial", 16)).pack(pady=10)
         
         # Sākuma skaitļa izvēles sadaļa
-        tk.Label(self.root, text="Choose a starting number:").pack()
+        tk.Label(self.frameNums, text="Choose a starting number:").pack()
         self.start_number_var = tk.IntVar(value=self.generated_numbers[0])  # Saglabā izvēlēto sākuma skaitli
         # Izveido radio pogas katram no ģenerētajiem skaitļiem
         for num in self.generated_numbers:
-            tk.Radiobutton(self.root, text=str(num), variable=self.start_number_var, value=num).pack()
+            tk.Radiobutton(self.frameNums, text=str(num), variable=self.start_number_var, value=num).pack()
         
         # Algoritma izvēles sadaļa
-        tk.Label(self.root, text="Choose Algorithm:").pack(pady=(10, 0))
+        tk.Label(self.frameNums, text="Choose Algorithm:").pack(pady=(10, 0))
         self.algorithm_var = tk.IntVar(value=1)  # Noklusēti: 1 = Minimax, 2 = Alpha-Beta
-        algo_frame = tk.Frame(self.root)
-        algo_frame.pack()
+        self.algo_frame = tk.Frame(self.root)
+        self.algo_frame.pack()
         # Izveido radio pogas algoritmu izvēlei
-        tk.Radiobutton(algo_frame, text="Minimax", variable=self.algorithm_var, value=1).pack(side=tk.LEFT, padx=5)
-        tk.Radiobutton(algo_frame, text="Alpha-Beta", variable=self.algorithm_var, value=2).pack(side=tk.LEFT, padx=5)
+        tk.Radiobutton(self.algo_frame, text="Minimax", variable=self.algorithm_var, value=1).pack(side=tk.LEFT, padx=5)
+        tk.Radiobutton(self.algo_frame, text="Alpha-Beta", variable=self.algorithm_var, value=2).pack(side=tk.LEFT, padx=5)
 
-        tk.Label(self.root, text="Izvelaties kurš spēlē kā spēlētājs:").pack(pady=(10, 0))
+
+        self.player1_frame = tk.Frame(self.root)
+        self.player1_frame.pack()
+        tk.Label(self.player1_frame, text="Izvelaties kurš spēlē kā spēlētājs:").pack(pady=(10, 0))
         self.player_vs_ai = tk.BooleanVar(value=True)  # Noklusēti: 1 = Minimax, 2 = Alpha-Beta
         
-        player1_frame = tk.Frame(self.root)
-        player1_frame.pack()
-        tk.Radiobutton(player1_frame, text="Speletajs", variable=self.player_vs_ai, value=True).pack(side=tk.LEFT, padx=5)
-        tk.Radiobutton(player1_frame, text="Dators", variable=self.player_vs_ai, value=False).pack(side=tk.LEFT, padx=5)
         
+        tk.Radiobutton(self.player1_frame, text="Speletajs", variable=self.player_vs_ai, value=True).pack(side=tk.LEFT, padx=5)
+        tk.Radiobutton(self.player1_frame, text="Dators", variable=self.player_vs_ai, value=False).pack(side=tk.LEFT, padx=5)
+        
+        #self.startGameFrame = tk.Frame(self.root)
+        #self.startGameFrame.pack()
         # Poga, lai uzsāktu spēli
         self.startButton = tk.Button(self.root, text="Start Game", command=self.start_game)
         self.startButton.pack(pady=5)
@@ -92,13 +99,14 @@ class GameGUI:
         self.buttonDivide3.grid(row=0, column=1, padx=5, pady=5)
         
         # Restart poga, lai sāktu spēli no jauna
+        #self.restartButtonFrame = tk.Frame(self.root)
         self.restart_button = tk.Button(self.root, text="Restart Game", command=self.restart_game)
         self.restart_button.pack(pady=10)
     
     def start_game(self):
         # Saglabā izvēlēto sākuma skaitli un algoritma vērtību
         start_number = self.start_number_var.get()
-        start_number = 19440
+        #start_number = 19440 #test
         selected_algorithm = self.algorithm_var.get()  # Iegūst vērtību: 1 = Minimax, 2 = Alpha-Beta
         player_vs_ai = self.player_vs_ai.get()
         # Inicializē spēles dzinēju (GameEngine) ar izvēlēto sākuma skaitli un algoritmu
@@ -144,7 +152,7 @@ class GameGUI:
                 self.end_game()  # Ja spēle ir beigusies, izsauc beigu funkciju
         
     
-    def update_ui(self):
+    def update_ui(self): 
         # Iegūst spēles stāvokli no GameEngine un atjaunina GUI elementus
         state = self.engine.get_state()
         self.current_number.config(text=str(state["number"]))
@@ -158,7 +166,8 @@ class GameGUI:
         self.disable_move_buttons()
         state = self.engine.get_state()
         winner = "Player" if state["player_score"] > state["computer_score"] else "Computer"
-        tk.Label(self.root, text=f"Game Over! Winner: {winner}", font=("Arial", 14)).pack()
+        self.labelWinner = tk.Label(self.root, text=f"Game Over! Winner: {winner}", font=("Arial", 14))
+        self.labelWinner.pack()
     
     def restart_game(self):
         # Atiestata GUI elementus uz sākotnējo stāvokli un atiestata spēles dzinēju
@@ -169,10 +178,27 @@ class GameGUI:
         self.disable_move_buttons()
         self.generated_numbers = self.generate_starting_numbers()
         
+        self.destroyFrames()
+
         ##!
         self.setup_ui()
 
         self.engine = None  # Notīra esošo spēles dzinēju
+
+    def destroyFrames(self):
+        self.frameNums.destroy()
+        self.algo_frame.destroy()
+        self.player1_frame.destroy()
+        #self.startGameFrame.destroy()
+        self.info.destroy()
+        self.button.destroy()
+        self.startButton.destroy()
+        self.restart_button.destroy()
+        self.labelWinner.destroy()
+        #self.engine.
+
+
+
 
 if __name__ == "__main__":
     root = tk.Tk()           # Izveido galveno Tkinter logu
