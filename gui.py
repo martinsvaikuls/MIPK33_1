@@ -107,6 +107,7 @@ class GameGUI:
         # Saglabā izvēlēto sākuma skaitli un algoritma vērtību
         start_number = self.start_number_var.get()
         #start_number = 19440 #test
+        #start_number = 699840 #test2
         selected_algorithm = self.algorithm_var.get()  # Iegūst vērtību: 1 = Minimax, 2 = Alpha-Beta
         player_vs_ai = self.player_vs_ai.get()
         # Inicializē spēles dzinēju (GameEngine) ar izvēlēto sākuma skaitli un algoritmu
@@ -173,6 +174,8 @@ class GameGUI:
         winner = "Player" if state["player_score"] > state["computer_score"] else "Computer"
         self.labelWinner = tk.Label(self.root, text=f"Game Over! Winner: {winner}", font=("Arial", 14))
         self.labelWinner.pack()
+        
+        
     
     def restart_game(self):
         # Atiestata GUI elementus uz sākotnējo stāvokli un atiestata spēles dzinēju
@@ -199,8 +202,10 @@ class GameGUI:
         self.button.destroy()
         self.startButton.destroy()
         self.restart_button.destroy()
-        self.labelWinner.destroy()
-        #self.engine.
+        try:
+            self.labelWinner.destroy()
+        except:
+            pass
 
 
 
