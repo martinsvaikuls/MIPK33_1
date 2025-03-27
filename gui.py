@@ -74,7 +74,7 @@ class GameGUI:
         self.current_number = tk.Label(self.info, text="--")
         self.current_number.grid(row=0, column=1)
         
-        tk.Label(self.info, text="Your Score:").grid(row=1, column=0)
+        tk.Label(self.info, text="Player Score:").grid(row=1, column=0)
         self.human_score = tk.Label(self.info, text="0")
         self.human_score.grid(row=1, column=1)
         
@@ -119,7 +119,12 @@ class GameGUI:
         else:
             while not self.engine.is_game_over():
                 self.computer_turn()
-    
+        
+        try:
+            self.labelWinner.destroy()
+        except:
+            pass
+
     def enable_move_buttons(self):
         # Ieslēdz pogas, lai spēlētājs varētu veikt gājienus
         self.buttonDivide2.config(state=tk.NORMAL)
