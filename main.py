@@ -7,10 +7,11 @@ class gameNode:
         self.p1 = p1                                                #  0 | 999 | 0
         self.p2 = p2                                                
         self.nextTurn = nextTurn    
-        self.left = left                                           
+        self.left = left                                          
         self.right = right
         self.staticValue = staticValue
         self.dynamicValue = dynamicValue
+        
 
 
 
@@ -24,269 +25,128 @@ class gameTree:
         gameList = ["player","computer"]
                 # ja bus svarigi
         nt = gameList[num]
-        if (num == 0):
-            num = 1
-            if(node.number % 2 == 0):
-                staticValue = node.p1 - node.p2 + 0
-                node.left = gameNode(node.number//2, node.p1+2, node.p2, nt, None, None, staticValue, -3621)
-                self.build(node.left, num)
+        if (node.number >= 10):
+            if (num == 0):
+                num = 1
+                if(node.number % 2 == 0):
+                    staticValue = node.p1 - node.p2 + 0
+                    node.right = gameNode(node.number//2, node.p1+2, node.p2, nt, None, None, staticValue, -3621)
+                    self.build(node.right, num)
 
-            if(node.number % 3 == 0):
-                staticValue = node.p1 - node.p2 + 1
-                node.right = gameNode(node.number//3, node.p1, node.p2+3, nt, None, None, staticValue, -3621)
-                self.build(node.right, num)
-        else:
-            num = 0
-            if(node.number % 2 == 0):
-                staticValue = node.p1 - node.p2 + 0
-                node.left = gameNode(node.number//2, node.p1, node.p2+2, nt, None, None, staticValue, -3621)
-                self.build(node.left, num)
+                if(node.number % 3 == 0):
+                    staticValue = node.p1 - node.p2 + 2
+                    node.left = gameNode(node.number//3, node.p1, node.p2+3, nt, None, None, staticValue, -3621)
+                    self.build(node.left, num)
+            else:
+                num = 0
+                if(node.number % 2 == 0):
+                    staticValue = node.p1 - node.p2 + 0
+                    node.right = gameNode(node.number//2, node.p1, node.p2+2, nt, None, None, staticValue, -3621)
+                    self.build(node.right, num)
 
-            if(node.number % 3 == 0):
-                staticValue = node.p1 - node.p2 + 1
-                node.right = gameNode(node.number//3, node.p1+3, node.p2, nt, None, None, staticValue, -3621)
-                self.build(node.right, num)
+                if(node.number % 3 == 0):
+                    staticValue = node.p1 - node.p2 + 2
+                    node.left = gameNode(node.number//3, node.p1+3, node.p2, nt, None, None, staticValue, -3621)
+                    self.build(node.left, num)
             
-        return node
+            return node
     
 
     # --- CHAT GPT
     def print_tree(self, node, level=0): 
+        #"""
         if node is not None:
             self.print_tree(node.right, level + 1)
-            print(' ' * 4 * level + '->', node.number, node.nextTurn, node.p1, node.p2)
+            print(' ' * 4 * level + '->', node.number, node.nextTurn, node.p1, node.p2, node.staticValue)
             self.print_tree(node.left, level + 1)
+        #"""
      # --- CHAT GPT
-
-ERR_WRNG_INPUT = "Ludzu ievadiet pareizu ciparu"
-
-
-# Game
-def main():
-    # speles uzsaksana
-    num, ai_algorythm, isPlayerComputer = startGame()
-    
-    alg = gameTree(num)
-    root = gameNode(num, 0, 0, "player", None, None, 0, -3621)  
-    current = alg.root
-    print(alg.root)
-    print(current.number)
-
-    
-    
-
-    while(current.number > 10 and (current.number % 2 == 0 or current.number % 3 == 0)):    # >10 , nevar sadalit ar 2 vai 3 
-        print(f"Next turn : {current.nextTurn}")
-        print(f"Number = {current.number}")
-        
-        dal = 0
-
-        if (current.nextTurn == "computer"):
-            if (ai_algorythm == 1):
-                minimax(current, 4, False)
-            else:
-                alphaBeta(current, 4, False, -10000, 10000)
-
-
-            try:
-                if (current.left.dynamicValue != -3621):
-                    if (current.dynamicValue == current.left.dynamicValue):
-                        dal = 2
-            except Exception as err:
-                print(err)
-
-            try:
-                if (current.right.dynamicValue != -3621):
-                    if (current.dynamicValue == current.right.dynamicValue):
-                        dal = 3
-            except Exception as err:
-                print(err)
-
-        else:
-            if (not isPlayerComputer):
-                while (True):
-                    try:
-                        print("Izvēlaties dalītāju: ", end="")
-                        dal = int(input())
-                        
-                        if (dal == 2 or dal == 3):
-                            if (current.number % dal == 0):
-                                break
-                        else:
-                            print(ERR_WRNG_INPUT)
-                    
-                    except ValueError:
-                        continue
-            
-            else:
-                if (ai_algorythm == 1):
-                    minimax(current, 4, True)
-                else:
-                    alphaBeta(current, 4, True, -10000, 10000)
-            
-                try:
-                    if (current.left.dynamicValue != -3621):
-                        if (current.dynamicValue == current.left.dynamicValue):
-                            dal = 2
-                except Exception as err:
-                    print(err)
-
-                try:
-                    if (current.right.dynamicValue != -3621):
-                        if (current.dynamicValue == current.right.dynamicValue):
-                            dal = 3
-                except Exception as err:
-                    print(err)
-
-
-        
-        current.number//=dal # samazina skaitli ar dalitaju
-        match dal:
-            case 2:                                                                               # skaitlis dalas ar 2
-                current = current.left                                                                              # nakamais gajiens
-            case 3:
-                current = current.right
-
-
-        print(f"Speletaja punkti : {current.p1}")
-        print(f"Datora punkti : {current.p2}")
-
-        
-
-    print("---END---")
-    print("Numurs ir mazaks par 10 vai to nevar dalit ar 2 vai 3")
-    print(f"Speletaja punkti : {current.p1}")
-    print(f"Datora punkti : {current.p2}")
-
-
-# Spēles sākumā spēles programmatūra gadījuma ceļā saģenerē 5 skaitļus diapazonā no 10000 līdz 20000, 
-# bet tādus, kas sākotnēji dalās gan ar 3, gan ar 2.  
-def startGame():
-    start = []
-
-    # izveido 5 ciparus kuri dalas ar 3 un 2
-    for i in range(5):
-        start.append(6*random.randint(1667, 3333))
-
-    for i in range(len(start)):
-        print(f"Sakuma skaitlis {i+1} = {start[i]}")
-
-    # Cilvēks-spēlētājs izvēlas, ar kuru no saģenerētajiem skaitļiem viņš vēlas sākt spēli.    
-    num = 0
-    ai_algorythm = 0
-    while (True):
-        try:
-            print("Izvēlaties skaitli: ", end="")
-            izvele = int(input())
-            
-            if (izvele > 0 and izvele < 6):
-                num = start[izvele-1] 
-                #num = 19440#test
-                #num = 13014#test2
-                break
-            else:
-                print(ERR_WRNG_INPUT)
-        except ValueError:
-            continue
-
-    
-    print("""Ludzu, izvelaties datora algoritmu
-MinMaks: 1
-Alfa-Beta: 2""")
-    while (True):
-        try:
-            izvele = int(input())
-            
-            if (izvele == 1 or izvele == 2):
-                ai_algorythm = izvele
-                break
-            else:
-                print(ERR_WRNG_INPUT)
-        except ValueError:
-            continue
-
-    print("""Cilveks pret Datoru: 1
-Dators pret Datoru: 2""")
-    while (True):
-        try:
-            izvele = int(input())
-            
-            if (izvele == 1 or izvele == 2):
-                isPlayerComputer = izvele-1
-                break
-            else:
-                print(ERR_WRNG_INPUT)
-        except ValueError:
-            continue
-
-    return num, ai_algorythm, isPlayerComputer
 
 
 # Nemts no interneta video
-def minimax(node, depth, isMaximisingPlayer):
+def minimax(ntraversedNodes, node, depth, isMaximisingPlayer):
     if (depth == 0 or ((node.left == None and node.right == None))):
         node.dynamicValue = node.staticValue
-        return node.staticValue
+        return ntraversedNodes, node.staticValue
     
+    #print(ntraversedNodes)
     if isMaximisingPlayer:
         maxEval = -10000
         if (node.left != None):
-            eval = minimax(node.left, depth - 1, False)
+            ntraversedNodes, eval = minimax(ntraversedNodes, node.left, depth - 1, False)
             maxEval = max(maxEval, eval)
-        
+            ntraversedNodes+=1
+        #print(ntraversedNodes)
         if (node.right != None):
-            eval = minimax(node.right, depth - 1, False)
+            ntraversedNodes,eval = minimax(ntraversedNodes, node.right, depth - 1, False)
             maxEval = max(maxEval, eval)
+            ntraversedNodes+=1
+
         node.dynamicValue = maxEval
-        return maxEval
+        #print(ntraversedNodes)
+        return ntraversedNodes, maxEval
     
     else:
         minEval = 10000
         if (node.left != None):
-            eval = minimax(node.left, depth - 1, True)
+            ntraversedNodes, eval = minimax(ntraversedNodes,node.left, depth - 1, True)
             minEval = min(minEval, eval)
+            ntraversedNodes+=1
         
         if (node.right != None):
-            eval = minimax(node.right, depth - 1, True)
+            ntraversedNodes, eval = minimax(ntraversedNodes,node.right, depth - 1, True)
             minEval = min(minEval, eval)
+            ntraversedNodes+=1
+
         node.dynamicValue = minEval
-        return minEval
+        #print(ntraversedNodes)
+        return ntraversedNodes, minEval
     
 
-def alphaBeta(node, depth, isMaximisingPlayer, alpha, beta):
+def alphaBeta(ntraversedNodes, node, depth, isMaximisingPlayer, alpha, beta):
     if (depth == 0 or ((node.left == None and node.right == None))):
             node.dynamicValue = node.staticValue
-            return node.staticValue
+            return ntraversedNodes, node.staticValue
         
     if isMaximisingPlayer:
         maxEval = -10000
         if (node.left != None):
-            eval = alphaBeta(node.left, depth - 1, False, alpha, beta)
-            maxEval = max(maxEval, eval)
-            beta = max(beta, eval)
-        
+            ntraversedNodes, maxEval, alpha = alphaBetaMax(ntraversedNodes, node.left, depth, False, alpha, beta, maxEval)
+
         if (not(beta <= alpha)):
             if (node.right != None):
-                eval = alphaBeta(node.right, depth - 1, False, alpha, beta)
-                maxEval = max(maxEval, eval)
-        
+                ntraversedNodes, maxEval, beta = alphaBetaMax(ntraversedNodes, node.right, depth, False, alpha, beta, maxEval)
+
         node.dynamicValue = maxEval
-        return maxEval
+        return ntraversedNodes, maxEval
     
     else:
         minEval = 10000
         if (node.left != None):
-            eval = alphaBeta(node.left, depth - 1, True, alpha, beta)
-            minEval = min(minEval, eval)
-            beta = min(beta, eval)
-        
+            ntraversedNodes, minEval, beta = alphaBetaMin(ntraversedNodes, node.left, depth, True, alpha, beta, minEval)
+
         if (not(beta <= alpha)):
             if (node.right != None):
-                eval = alphaBeta(node.right, depth - 1, True, alpha, beta)
-                minEval = min(minEval, eval)
+                ntraversedNodes, minEval, beta = alphaBetaMin(ntraversedNodes, node.right, depth, True, alpha, beta, minEval)
+
         
         node.dynamicValue = minEval
-        return minEval
+        return ntraversedNodes, minEval
+    
+def alphaBetaMax(ntraversedNodes, node, depth, isMaximisingPlayer, alpha, beta, maxEval):
+    ntraversedNodes, eval = alphaBeta(ntraversedNodes, node, depth - 1, False, alpha, beta)
+    maxEval = max(maxEval, eval)
+    alpha = max(alpha, eval)
+    ntraversedNodes+=1
+    return ntraversedNodes, maxEval, alpha
+
+def alphaBetaMin(ntraversedNodes, node, depth, isMaximisingPlayer, alpha, beta, minEval):
+    ntraversedNodes, eval = alphaBeta(ntraversedNodes, node, depth - 1, True, alpha, beta)
+    minEval = min(minEval, eval)
+    beta = min(beta, eval)
+    ntraversedNodes+=1
+    return ntraversedNodes, minEval, beta
+
 
 
 # Pievienotā GameEngine klase, lai varam apvienot loģiku ar GUI
@@ -302,15 +162,24 @@ class GameEngine:
         self.current = self.tree.root       # Saglabā sākuma stāvokli no koka saknes
         self.player_vs_ai = player_vs_ai    # Saglabā informāciju par to, vai spēle ir cilvēks pret datoru
         self.algorithm = algorithm          # Saglabā izvēlēto algoritmu (1 vai 2)    
+        self.traversedNodes = 0
 
     def get_state(self):
         # Atgriež pašreizējo spēles stāvokli kā vārdnīcu, ko var izmantot GUI interfeisā
-        return {
-            "number": self.current.number,           # Pašreizējais skaitlis
-            "player_score": self.current.p1,         # Spēlētāja punkti
-            "computer_score": self.current.p2,       # Datora punkti
-            "turn": self.current.nextTurn            # Kurš veic nākamo gājienu ("player" vai "computer")
-        }
+        if self.player_vs_ai:
+            return {
+                "skaitlis": self.current.number,           # Pašreizējais skaitlis
+                "spēlētājs": self.current.p1,         # Spēlētāja punkti
+                "dators": self.current.p2,       # Datora punkti
+                "turn": self.current.nextTurn            # Kurš veic nākamo gājienu ("player" vai "computer")
+            }
+        else:
+            return {
+                "skaitlis": self.current.number,           # Pašreizējais skaitlis
+                "dators1": self.current.p1,         # Spēlētāja punkti
+                "dators2": self.current.p2,       # Datora punkti
+                "turn": self.current.nextTurn            # Kurš veic nākamo gājienu ("player" vai "computer")
+            }
 
     def is_game_over(self):
         # Pārbauda, vai spēle ir beigusies:
@@ -324,9 +193,9 @@ class GameEngine:
         if self.current.nextTurn == "player" and self.current.number % divisor == 0 :
             self.current.number //= divisor  # Dalās ar divisor, atjaunojot skaitli
             # Pāriet uz atbilstošo apakšmezglu (koka mezglu) atkarībā no izvēlētā dalītāja
-            if divisor == 2 and self.current.left is not None:
+            if divisor == 3 and self.current.left is not None:
                 self.current = self.current.left
-            elif divisor == 3 and self.current.right is not None:
+            elif divisor == 2 and self.current.right is not None:
                 self.current = self.current.right
             return True  # Gājiens veiksmīgi izpildīts
       
@@ -336,26 +205,79 @@ class GameEngine:
         # Veic datora (AI) gājienu, ja nākamais gājiens ir datoram
         #if self.current.nextTurn == "computer":
             # Izvēlas algoritmu atkarībā no izvēles (1 = minimax, 2 = alphaBeta)
+        ntraversedNodes = 0
         isMaximising = False
         if self.current.nextTurn == "computer":
             isMaximising = False
         else:
             isMaximising = True
 
-        if self.algorithm == 1:
-            minimax(self.current, 4, isMaximising)  # Izsauc minimax algoritmu ar dziļumu 4
-        else:
-            alphaBeta(self.current, 4, isMaximising, -10000, 10000)  # Izsauc alphaBeta algoritmu ar dziļumu 4 un sākotnējiem alpha, beta vērtībām
+        goTroughAlgorythm = True
+
         
-        # Pārbauda, kurš apakšmezgls atbilst aprēķinātajam vērtējumam:
+        try:
+            if (self.current.left.dynamicValue == self.current.dynamicValue and not (self.current.dynamicValue == -3621)):
+                if not (self.current.left.dynamicValue == -3621):
+                    goTroughAlgorythm = False
+                else:
+                    goTroughAlgorythm = True
+                
+        except:
+            pass
+        try:    
+            if self.current.right.dynamicValue == self.current.dynamicValue and not (self.current.dynamicValue == -3621): 
+                if not (self.current.right.dynamicValue == -3621):
+                    goTroughAlgorythm = False
+                else:
+                    goTroughAlgorythm = True
+        except:
+            pass
+
+        if goTroughAlgorythm:
+            #print("algo")
+            if self.algorithm == 1:
+                ntraversedNodes, eval = minimax(ntraversedNodes, self.current, 40, isMaximising)  # Izsauc minimax algoritmu ar dziļumu 4
+                #print('minimax')
+            else:
+                ntraversedNodes, eval = alphaBeta(ntraversedNodes, self.current, 40, isMaximising, -10000, 10000)  # Izsauc alphaBeta algoritmu ar dziļumu 4 un sākotnējiem alpha, beta vērtībām
+                #print('alfabeta')
+                
+        print(ntraversedNodes)
+         # Pārbauda, kurš apakšmezgls atbilst aprēķinātajam vērtējumam:
         # Ja kreisais (dalīšana ar 2) apakšmezgls ir derīgs un tā dinamiskā vērtība sakrīt ar pašreizējo, tad veic gājienu
-        if self.current.left is not None and self.current.left.dynamicValue == self.current.dynamicValue:
-            self.current.number //= 2
-            self.current = self.current.left
+        """
+        print(self.current.nextTurn)       
+        print(self.current.dynamicValue)
+
+        
+        try:
+            print("left ",self.current.left.dynamicValue, end="")
+        except:
+            pass
+
+        try:
+            print(" right",self.current.right.dynamicValue)
+        except:
+            pass
+        """
+        
         # Pretējā gadījumā, ja labo (dalīšana ar 3) apakšmezgls atbilst, tad veic gājienu
-        elif self.current.right is not None and self.current.right.dynamicValue == self.current.dynamicValue:
+        if self.current.left is not None and self.current.left.dynamicValue == self.current.dynamicValue:
+            #print("left")
             self.current.number //= 3
+            self.current = self.current.left
+        elif self.current.right is not None and self.current.right.dynamicValue == self.current.dynamicValue:
+            #print("right")
+            self.current.number //= 2
             self.current = self.current.right
+        
+        
+        
+
+        
+       
+
+
         
 if __name__ == '__main__':
     main()
