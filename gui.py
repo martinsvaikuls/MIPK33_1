@@ -8,7 +8,7 @@ class GameGUI:
     def __init__(self, root):
         # Inicializē GUI ar norādīto Tkinter logu (root)
         self.root = root
-        self.root.title("Number Division Game")  # Iestata loga nosaukumu
+        self.root.title("Skaitļa dalīšanas spēle")  # Iestata loga nosaukumu
         self.root.geometry("500x590")  # Iestata loga izmērus
         
         # Ģenerē sākuma skaitļus (5 skaitļi no 10000 līdz 20000, kuri dalās ar 2 un 3)
@@ -31,17 +31,17 @@ class GameGUI:
         self.frameNums = tk.Frame(self.root)
         self.frameNums.pack()
 
-        tk.Label(self.frameNums, text="Number Division Game", font=("Arial", 16)).pack(pady=10)
+        tk.Label(self.frameNums, text="Skaitļa dalīšanas spēle", font=("Arial", 16)).pack(pady=10)
         
         # Sākuma skaitļa izvēles sadaļa
-        tk.Label(self.frameNums, text="Choose a starting number:").pack()
+        tk.Label(self.frameNums, text="Izvēlaties sākuma ciparu:").pack()
         self.start_number_var = tk.IntVar(value=self.generated_numbers[0])  # Saglabā izvēlēto sākuma skaitli
         # Izveido radio pogas katram no ģenerētajiem skaitļiem
         for num in self.generated_numbers:
             tk.Radiobutton(self.frameNums, text=str(num), variable=self.start_number_var, value=num).pack()
         
         # Algoritma izvēles sadaļa
-        tk.Label(self.frameNums, text="Choose Algorithm:").pack(pady=(10, 0))
+        tk.Label(self.frameNums, text="Izvēlaties algoritmu:").pack(pady=(10, 0))
         self.algorithm_var = tk.IntVar(value=1)  # Noklusēti: 1 = Minimax, 2 = Alpha-Beta
         self.algo_frame = tk.Frame(self.root)
         self.algo_frame.pack()
@@ -62,7 +62,7 @@ class GameGUI:
         #self.startGameFrame = tk.Frame(self.root)
         #self.startGameFrame.pack()
         # Poga, lai uzsāktu spēli
-        self.startButton = tk.Button(self.root, text="Start Game", command=self.start_game)
+        self.startButton = tk.Button(self.root, text="Sākt Spēli", command=self.start_game)
         self.startButton.pack(pady=5)
         
         # Informācijas rāmis, kurā tiks parādīts spēles statuss
@@ -70,29 +70,30 @@ class GameGUI:
         self.info.pack(pady=10)
         
         # Etiķetes un vērtības, kas parāda pašreizējo skaitli, spēlētāja un datora punktus un kurš gājas nākamais
-        tk.Label(self.info, text="Current Number:").grid(row=0, column=0)
+        tk.Label(self.info, text="Tagedējais Skaitlis:").grid(row=0, column=0)
         self.current_number = tk.Label(self.info, text="--")
         self.current_number.grid(row=0, column=1)
         
-        tk.Label(self.info, text="Player Score:").grid(row=1, column=0)
+        
+        tk.Label(self.info, text="Spēlētāja_1 Punkti:").grid(row=1, column=0)
         self.human_score = tk.Label(self.info, text="0")
         self.human_score.grid(row=1, column=1)
         
-        tk.Label(self.info, text="Computer Score:").grid(row=2, column=0)
+        tk.Label(self.info, text="Spēlētāja_2 Punkti:").grid(row=2, column=0)
         self.computer_score = tk.Label(self.info, text="0")
         self.computer_score.grid(row=2, column=1)
         
-        tk.Label(self.info, text="Current Player:").grid(row=3, column=0)
-        self.current_player = tk.Label(self.info, text="--")
-        self.current_player.grid(row=3, column=1)
+        #tk.Label(self.info, text="Tagedējāis Spēlētājs:").grid(row=3, column=0)
+        #self.current_player = tk.Label(self.info, text="--")
+        #self.current_player.grid(row=3, column=1)
         
         # Rāmis, kurā tiek izvietotas gājiena pogas
         self.button = tk.Frame(self.root)
         self.button.pack()
         
         # Izveido pogas dalīšanai ar 2 un 3; sākotnēji tās ir atspējotas
-        self.buttonDivide2 = tk.Button(self.button, text="Divide by 2", state=tk.DISABLED, command=lambda: self.make_move(2))
-        self.buttonDivide3 = tk.Button(self.button, text="Divide by 3", state=tk.DISABLED, command=lambda: self.make_move(3))
+        self.buttonDivide2 = tk.Button(self.button, text="Dalīt ar 2", state=tk.DISABLED, command=lambda: self.make_move(2))
+        self.buttonDivide3 = tk.Button(self.button, text="Dalīt ar 3", state=tk.DISABLED, command=lambda: self.make_move(3))
                
         # Novieto pogas režģī
         self.buttonDivide2.grid(row=0, column=0, padx=5, pady=5)
@@ -100,13 +101,19 @@ class GameGUI:
         
         # Restart poga, lai sāktu spēli no jauna
         #self.restartButtonFrame = tk.Frame(self.root)
-        self.restart_button = tk.Button(self.root, text="Restart Game", command=self.restart_game)
+        self.restart_button = tk.Button(self.root, text="Restartēt spēli", command=self.restart_game)
         self.restart_button.pack(pady=10)
     
     def start_game(self):
         # Saglabā izvēlēto sākuma skaitli un algoritma vērtību
         start_number = self.start_number_var.get()
         #start_number = 19440 #test
+        #start_number = 15552 #test
+        #start_number = 12960
+        #start_number = 13014
+        #start_number = 5184
+        #start_number = 288
+        #start_number = 576
         #start_number = 699840 #test2
         selected_algorithm = self.algorithm_var.get()  # Iegūst vērtību: 1 = Minimax, 2 = Alpha-Beta
         player_vs_ai = self.player_vs_ai.get()
@@ -161,18 +168,40 @@ class GameGUI:
     def update_ui(self): 
         # Iegūst spēles stāvokli no GameEngine un atjaunina GUI elementus
         state = self.engine.get_state()
-        self.current_number.config(text=str(state["number"]))
-        self.human_score.config(text=str(state["player_score"]))
-        self.computer_score.config(text=str(state["computer_score"]))
-        self.current_player.config(text=state["turn"])
+        self.current_number.config(text=str(state["skaitlis"]))
+        if self.player_vs_ai:
+            self.human_score.config(text=str(state["spēlētājs"]))
+            self.computer_score.config(text=str(state["dators"]))
+        else:
+            self.human_score.config(text=str(state["dators1"]))
+            self.computer_score.config(text=str(state["dators2"]))
+
+        #self.current_player.config(text=state["turn"])
     
     def end_game(self):
         # Kad spēle ir beigusies, atspējo gājiena pogas un parāda rezultātu
         
         self.disable_move_buttons()
         state = self.engine.get_state()
-        winner = "Player" if state["player_score"] > state["computer_score"] else "Computer"
-        self.labelWinner = tk.Label(self.root, text=f"Game Over! Winner: {winner}", font=("Arial", 14))
+        if self.player_vs_ai:
+             
+            if state["spēlētājs"] > state["dators"]: 
+                winner = "Spēlētājs"
+            elif state["spēlētājs"] < state["dators"]:
+                winner = "Dators"
+            else:
+                winner = "Neizšķirts"
+                
+                
+        else:
+            if state["dators1"] > state["dators2"]: 
+                winner = "Dators1"
+            elif state["dators1"] < state["dators2"]:
+                winner = "Dators2"
+            else:
+                winner = "Neizšķirts"
+        
+        self.labelWinner = tk.Label(self.root, text=f"Spēle ir beigusies! Uzvarētjs: {winner}", font=("Arial", 14))
         self.labelWinner.pack()
         
         
@@ -182,7 +211,7 @@ class GameGUI:
         self.current_number.config(text="--")
         self.human_score.config(text="0")
         self.computer_score.config(text="0")
-        self.current_player.config(text="--")
+        #self.current_player.config(text="--")
         self.disable_move_buttons()
         self.generated_numbers = self.generate_starting_numbers()
         
