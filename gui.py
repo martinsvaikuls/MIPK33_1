@@ -46,17 +46,17 @@ class GameGUI:
         self.algo_frame = tk.Frame(self.root)
         self.algo_frame.pack()
         # Izveido radio pogas algoritmu izvēlei
-        tk.Radiobutton(self.algo_frame, text="Minimax", variable=self.algorithm_var, value=1).pack(side=tk.LEFT, padx=5)
-        tk.Radiobutton(self.algo_frame, text="Alpha-Beta", variable=self.algorithm_var, value=2).pack(side=tk.LEFT, padx=5)
+        tk.Radiobutton(self.algo_frame, text="Minimaks", variable=self.algorithm_var, value=1).pack(side=tk.LEFT, padx=5)
+        tk.Radiobutton(self.algo_frame, text="Alfa-beta", variable=self.algorithm_var, value=2).pack(side=tk.LEFT, padx=5)
 
 
         self.player1_frame = tk.Frame(self.root)
         self.player1_frame.pack()
-        tk.Label(self.player1_frame, text="Izvelaties kurš spēlē kā spēlētājs:").pack(pady=(10, 0))
+        tk.Label(self.player1_frame, text="Izvelaties kurš spēlē kā spēlētājs_1:").pack(pady=(10, 0))
         self.player_vs_ai = tk.BooleanVar(value=True)  # Noklusēti: 1 = Minimax, 2 = Alpha-Beta
         
         
-        tk.Radiobutton(self.player1_frame, text="Speletajs", variable=self.player_vs_ai, value=True).pack(side=tk.LEFT, padx=5)
+        tk.Radiobutton(self.player1_frame, text="Cilvēks", variable=self.player_vs_ai, value=True).pack(side=tk.LEFT, padx=5)
         tk.Radiobutton(self.player1_frame, text="Dators", variable=self.player_vs_ai, value=False).pack(side=tk.LEFT, padx=5)
         
         #self.startGameFrame = tk.Frame(self.root)
@@ -101,7 +101,7 @@ class GameGUI:
         
         # Restart poga, lai sāktu spēli no jauna
         #self.restartButtonFrame = tk.Frame(self.root)
-        self.restart_button = tk.Button(self.root, text="Restartēt spēli", command=self.restart_game)
+        self.restart_button = tk.Button(self.root, text="Ģenerēt jaunus ciparus", command=self.restart_game)
         self.restart_button.pack(pady=10)
     
     def start_game(self):
@@ -118,7 +118,7 @@ class GameGUI:
         selected_algorithm = self.algorithm_var.get()  # Iegūst vērtību: 1 = Minimax, 2 = Alpha-Beta
         player_vs_ai = self.player_vs_ai.get()
         # Inicializē spēles dzinēju (GameEngine) ar izvēlēto sākuma skaitli un algoritmu
-        self.engine = GameEngine(start_number, algorithm=selected_algorithm, player_vs_ai=True)
+        self.engine = GameEngine(start_number, algorithm=selected_algorithm, player_vs_ai=player_vs_ai)
         self.update_ui()  # Atjaunina GUI, lai parādītu spēles sākuma stāvokli
         print(player_vs_ai)
         if player_vs_ai:
@@ -159,9 +159,10 @@ class GameGUI:
         
         if self.engine:
             self.engine.make_ai_move()
-            
+            print(self.player_vs_ai)
             self.update_ui()  # Atjaunina GUI pēc datorgājiena
             if self.engine.is_game_over():
+                print("game over ", self.player_vs_ai)
                 self.end_game()  # Ja spēle ir beigusies, izsauc beigu funkciju
         
     
@@ -169,10 +170,14 @@ class GameGUI:
         # Iegūst spēles stāvokli no GameEngine un atjaunina GUI elementus
         state = self.engine.get_state()
         self.current_number.config(text=str(state["skaitlis"]))
-        if self.player_vs_ai:
-            self.human_score.config(text=str(state["spēlētājs"]))
+        print(self.player_vs_ai.get())
+        
+
+        if self.player_vs_ai.get():
+            self.human_score.config(text=str(state["cilvēks"]))
             self.computer_score.config(text=str(state["dators"]))
         else:
+            print('a')
             self.human_score.config(text=str(state["dators1"]))
             self.computer_score.config(text=str(state["dators2"]))
 
@@ -180,19 +185,18 @@ class GameGUI:
     
     def end_game(self):
         # Kad spēle ir beigusies, atspējo gājiena pogas un parāda rezultātu
-        
         self.disable_move_buttons()
         state = self.engine.get_state()
-        if self.player_vs_ai:
+
+        player_vs_ai = self.player_vs_ai.get()
+        if player_vs_ai:
              
-            if state["spēlētājs"] > state["dators"]: 
-                winner = "Spēlētājs"
-            elif state["spēlētājs"] < state["dators"]:
+            if state["cilvēks"] > state["dators"]: 
+                winner = "Cilvēks"
+            elif state["cilvēks"] < state["dators"]:
                 winner = "Dators"
             else:
                 winner = "Neizšķirts"
-                
-                
         else:
             if state["dators1"] > state["dators2"]: 
                 winner = "Dators1"
@@ -201,9 +205,18 @@ class GameGUI:
             else:
                 winner = "Neizšķirts"
         
-        self.labelWinner = tk.Label(self.root, text=f"Spēle ir beigusies! Uzvarētjs: {winner}", font=("Arial", 14))
+       
+
+        self.labelWinner = tk.Label(self.root, text=f"Spēle ir beigusies! Uzvarētājs: {winner}", font=("Arial", 14))
         self.labelWinner.pack()
-        
+
+
+        print(self.labelWinner.cget("text"))
+        print(self.labelWinner)
+        print(self.labelWinner.winfo_exists())
+
+
+        print("after print",winner)
         
     
     def restart_game(self):
