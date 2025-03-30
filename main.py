@@ -58,8 +58,6 @@ class GameGUI:
         tk.Radiobutton(self.player1_frame, text="Cilvēks", variable=self.player_vs_ai, value=True).pack(side=tk.LEFT, padx=5)
         tk.Radiobutton(self.player1_frame, text="Dators", variable=self.player_vs_ai, value=False).pack(side=tk.LEFT, padx=5)
         
-        #self.startGameFrame = tk.Frame(self.root)
-        #self.startGameFrame.pack()
         # Poga, lai uzsāktu spēli
         self.startButton = tk.Button(self.root, text="Sākt Spēli", command=self.start_game)
         self.startButton.pack(pady=5)
@@ -82,9 +80,6 @@ class GameGUI:
         self.computer_score = tk.Label(self.info, text="0")
         self.computer_score.grid(row=2, column=1)
         
-        #tk.Label(self.info, text="Tagedējāis Spēlētājs:").grid(row=3, column=0)
-        #self.current_player = tk.Label(self.info, text="--")
-        #self.current_player.grid(row=3, column=1)
         
         # Rāmis, kurā tiek izvietotas gājiena pogas
         self.button = tk.Frame(self.root)
@@ -106,14 +101,6 @@ class GameGUI:
     def start_game(self):
         # Saglabā izvēlēto sākuma skaitli un algoritma vērtību
         start_number = self.start_number_var.get()
-        #start_number = 19440 #test
-        #start_number = 15552 #test
-        #start_number = 12960
-        #start_number = 13014
-        #start_number = 5184
-        #start_number = 288
-        #start_number = 576
-        #start_number = 699840 #test2
         selected_algorithm = self.algorithm_var.get()  # Iegūst vērtību: 1 = Minimax, 2 = Alpha-Beta
         player_vs_ai = self.player_vs_ai.get()
         # Inicializē spēles dzinēju (GameEngine) ar izvēlēto sākuma skaitli un algoritmu
@@ -185,7 +172,6 @@ class GameGUI:
             self.human_score.config(text=str(state["dators1"]))
             self.computer_score.config(text=str(state["dators2"]))
 
-        #self.current_player.config(text=state["turn"])
     
     def end_game(self):
         # Kad spēle ir beigusies, atspējo gājiena pogas un parāda rezultātu
@@ -228,13 +214,11 @@ class GameGUI:
         self.current_number.config(text="--")
         self.human_score.config(text="0")
         self.computer_score.config(text="0")
-        #self.current_player.config(text="--")
         self.disable_move_buttons()
         self.generated_numbers = self.generate_starting_numbers()
         
         self.destroyFrames()
 
-        ##!
         self.setup_ui()
 
         self.engine = None  # Notīra esošo spēles dzinēju
@@ -243,7 +227,6 @@ class GameGUI:
         self.frameNums.destroy()
         self.algo_frame.destroy()
         self.player1_frame.destroy()
-        #self.startGameFrame.destroy()
         self.info.destroy()
         self.button.destroy()
         self.startButton.destroy()
@@ -254,13 +237,11 @@ class GameGUI:
             pass
 
 
-import random
-
 
 class gameNode:
     def __init__(self, number, player1Pts, player2Pts, currentPlayer, left, right, heuristicValue, dynamicValue):      # player1Pts = player, player2Pts = computer
         self.number = number            # player1Pts | num | player2Pts
-        self.player1Pts = player1Pts    #  0 | 999 | 0
+        self.player1Pts = player1Pts    
         self.player2Pts = player2Pts                                                
         self.currentPlayer = currentPlayer    
         self.left = left   # Virsotne                                       
@@ -268,8 +249,6 @@ class gameNode:
         self.heuristicValue = heuristicValue
         self.dynamicValue = dynamicValue
         
-
-
 
 class gameTree:
     def __init__(self, number):
@@ -309,100 +288,88 @@ class gameTree:
             return node
     
 
-    # --- CHAT GPT
-    def print_tree(self, node, level=0): 
-        #"""
-        if node is not None:
-            self.print_tree(node.right, level + 1)
-            print(' ' * 4 * level + '->', node.number, node.currentPlayer, node.player1Pts, node.player2Pts, node.heuristicValue)
-            self.print_tree(node.left, level + 1)
-        #"""
-     # --- CHAT GPT
-
-
 # Nemts no interneta video
-def minimax(ntraversedNodes, node, depth, isMaximisingPlayer):
+def minimax(node, depth, isMaximisingPlayer):
     if (depth == 0 or ((node.left == None and node.right == None))):
         node.dynamicValue = node.heuristicValue
-        return ntraversedNodes, node.heuristicValue
+        return node.heuristicValue
     
     
     if isMaximisingPlayer:
         maxEval = -10000
         if (node.left != None):
-            ntraversedNodes, eval = minimax(ntraversedNodes, node.left, depth - 1, False)
+            eval = minimax(node.left, depth - 1, False)
             maxEval = max(maxEval, eval)
-            ntraversedNodes+=1
+            
         
         if (node.right != None):
-            ntraversedNodes,eval = minimax(ntraversedNodes, node.right, depth - 1, False)
+            eval = minimax(node.right, depth - 1, False)
             maxEval = max(maxEval, eval)
-            ntraversedNodes+=1
-
+            
 
         node.dynamicValue = maxEval
-        return ntraversedNodes, maxEval
+        return maxEval
     
     else:
         minEval = 10000
         if (node.left != None):
-            ntraversedNodes, eval = minimax(ntraversedNodes,node.left, depth - 1, True)
+            eval = minimax(node.left, depth - 1, True)
             minEval = min(minEval, eval)
-            ntraversedNodes+=1
+            
         
         if (node.right != None):
-            ntraversedNodes, eval = minimax(ntraversedNodes,node.right, depth - 1, True)
+            eval = minimax(node.right, depth - 1, True)
             minEval = min(minEval, eval)
-            ntraversedNodes+=1
+            
 
 
         node.dynamicValue = minEval
-        return ntraversedNodes, minEval
+        return minEval
     
 
-def alphaBeta(ntraversedNodes, node, depth, isMaximisingPlayer, alpha, beta):
+def alphaBeta(node, depth, isMaximisingPlayer, alpha, beta):
     if (depth == 0 or ((node.left == None and node.right == None))):
             node.dynamicValue = node.heuristicValue
-            return ntraversedNodes, node.heuristicValue
+            return node.heuristicValue
         
     if isMaximisingPlayer:
         maxEval = -10000
         if (node.left != None):
-            ntraversedNodes, maxEval, alpha = alphaBetaMax(ntraversedNodes, node.left, depth, False, alpha, beta, maxEval)
+            maxEval, alpha = alphaBetaMax(node.left, depth, False, alpha, beta, maxEval)
 
         if (not(beta <= alpha)):
             if (node.right != None):
-                ntraversedNodes, maxEval, beta = alphaBetaMax(ntraversedNodes, node.right, depth, False, alpha, beta, maxEval)
+                maxEval, beta = alphaBetaMax(node.right, depth, False, alpha, beta, maxEval)
 
         node.dynamicValue = maxEval
-        return ntraversedNodes, maxEval
+        return maxEval
     
     else:
         minEval = 10000
         if (node.left != None):
-            ntraversedNodes, minEval, beta = alphaBetaMin(ntraversedNodes, node.left, depth, True, alpha, beta, minEval)
+            minEval, beta = alphaBetaMin(node.left, depth, True, alpha, beta, minEval)
 
         if (not(beta <= alpha)):
             if (node.right != None):
-                ntraversedNodes, minEval, beta = alphaBetaMin(ntraversedNodes, node.right, depth, True, alpha, beta, minEval)
+                minEval, beta = alphaBetaMin(node.right, depth, True, alpha, beta, minEval)
 
         
         node.dynamicValue = minEval
-        return ntraversedNodes, minEval
+        return minEval
     
-def alphaBetaMax(ntraversedNodes, node, depth, isMaximisingPlayer, alpha, beta, maxEval):
-    ntraversedNodes, eval = alphaBeta(ntraversedNodes, node, depth - 1, False, alpha, beta)
+def alphaBetaMax(node, depth, isMaximisingPlayer, alpha, beta, maxEval):
+    eval = alphaBeta(node, depth - 1, False, alpha, beta)
     maxEval = max(maxEval, eval)
     alpha = max(alpha, eval)
-    ntraversedNodes+=1
-    return ntraversedNodes, maxEval, alpha
+    
+    return  maxEval, alpha
 
-def alphaBetaMin(ntraversedNodes, node, depth, isMaximisingPlayer, alpha, beta, minEval):
-    ntraversedNodes, eval = alphaBeta(ntraversedNodes, node, depth - 1, True, alpha, beta)
+def alphaBetaMin(node, depth, isMaximisingPlayer, alpha, beta, minEval):
+    eval = alphaBeta(node, depth - 1, True, alpha, beta)
     minEval = min(minEval, eval)
     beta = min(beta, eval)
-    ntraversedNodes+=1
-    return ntraversedNodes, minEval, beta
+    
+    return minEval, beta
 
 
 
@@ -419,24 +386,20 @@ class GameEngine:
         self.player_vs_ai = player_vs_ai    # Saglabā informāciju par to, vai spēle ir cilvēks pret datoru
         self.algorithm = algorithm          # Saglabā izvēlēto algoritmu (1 vai 2)    
         self.traversedNodes = 0
-        print("init",self.player_vs_ai)
 
     def get_state(self):
         # Atgriež pašreizējo spēles stāvokli kā vārdnīcu, ko var izmantot GUI interfeisā
-        print("getting state", self.player_vs_ai)
         if self.player_vs_ai:
             return {
                 "skaitlis": self.current.number,         # Pašreizējais skaitlis
                 "cilvēks": self.current.player1Pts,      # Spēlētāja punkti
                 "dators": self.current.player2Pts,       # Datora punkti
-                #"turn": self.current.currentPlayer       # Kurš veic nākamo gājienu 
             }
         else:
             return {
                 "skaitlis": self.current.number,         # Pašreizējais skaitlis
                 "dators1": self.current.player1Pts,      # Spēlētāja punkti
                 "dators2": self.current.player2Pts,      # Datora punkti
-                #"turn": self.current.currentPlayer       # Kurš veic nākamo gājienu 
             }
 
     def is_game_over(self):
@@ -461,7 +424,7 @@ class GameEngine:
 
     def make_ai_move(self):
         # Veic datora (AI) gājienu, ja nākamais gājiens ir "computer" tad minimizē, ja "player" tad maximizē
-        ntraversedNodes = 0
+        
 
         isMaximising = False
         if self.current.currentPlayer == "computer":
@@ -494,14 +457,12 @@ class GameEngine:
         if goTroughAlgorythm:
 
             if self.algorithm == 1:
-                ntraversedNodes, eval = minimax(ntraversedNodes, self.current, SEARCH_DEPTH, isMaximising) 
+                eval = minimax(self.current, SEARCH_DEPTH, isMaximising) 
 
             else:
-                ntraversedNodes, eval = alphaBeta(ntraversedNodes, self.current, SEARCH_DEPTH, isMaximising, -10000, 10000)
+                eval = alphaBeta(self.current, SEARCH_DEPTH, isMaximising, -10000, 10000)
 
-        print(ntraversedNodes)
-        
-
+       
         # Pārbauda, kurš apakšmezgls atbilst aprēķinātajam vērtējumam:
 
         # Ja Kreisais (dalīšana ar 3) apakšmezgls ir derīgs un tā dinamiskā vērtība sakrīt ar pašreizējo, tad veic gājienu
