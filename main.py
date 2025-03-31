@@ -288,7 +288,7 @@ class gameTree:
             return node
     
 
-# Nemts no interneta video
+# mimimax un alphaBeta pamat funkcijas balstās no YouTube kanāla: Sebastian Lague
 def minimax(node, depth, isMaximisingPlayer):
     if (depth == 0 or ((node.left == None and node.right == None))):
         node.dynamicValue = node.heuristicValue
