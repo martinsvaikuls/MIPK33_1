@@ -67,7 +67,7 @@ class GameGUI:
         self.info.pack(pady=10)
         
         # Etiķetes un vērtības, kas parāda pašreizējo skaitli, spēlētāja un datora punktus un kurš gājas nākamais
-        tk.Label(self.info, text="Tagedējais Skaitlis:").grid(row=0, column=0)
+        tk.Label(self.info, text="Tagadējais Skaitlis:").grid(row=0, column=0)
         self.current_number = tk.Label(self.info, text="--")
         self.current_number.grid(row=0, column=1)
         
@@ -106,7 +106,7 @@ class GameGUI:
         # Inicializē spēles dzinēju (GameEngine) ar izvēlēto sākuma skaitli un algoritmu
         self.engine = GameEngine(start_number, algorithm=selected_algorithm, player_vs_ai=player_vs_ai)
         self.update_ui()  # Atjaunina GUI, lai parādītu spēles sākuma stāvokli
-        print(player_vs_ai)
+        
         try:
             self.labelWinner.destroy()
         except:
@@ -117,12 +117,7 @@ class GameGUI:
         else:
             self.root.after(500, self.run_computer_vs_computer)
         
-    def run_computer_vs_computer(self):
-        if not self.engine.is_game_over():
-            self.computer_turn()
-            self.root.after(500, self.run_computer_vs_computer)
-        else:
-            self.end_game()
+    
 
     def enable_move_buttons(self):
         # Ieslēdz pogas, lai spēlētājs varētu veikt gājienus
@@ -134,6 +129,16 @@ class GameGUI:
         self.buttonDivide2.config(state=tk.DISABLED)
         self.buttonDivide3.config(state=tk.DISABLED)
     
+    def run_computer_vs_computer(self):
+        try:
+            if not self.engine.is_game_over():
+                self.computer_turn()
+                self.root.after(500, self.run_computer_vs_computer)
+            else:
+                self.end_game()
+        except:
+            pass
+
     def make_move(self, divisor):
         # Veic spēlētāja gājienu ar norādīto dalītāju (2 vai 3)
         if self.engine:
@@ -150,10 +155,10 @@ class GameGUI:
         
         if self.engine:
             self.engine.make_ai_move()
-            print(self.player_vs_ai)
+            
             self.update_ui()  # Atjaunina GUI pēc datorgājiena
             if self.engine.is_game_over() and self.player_vs_ai.get():
-                print("game over ", self.player_vs_ai)
+                
                 self.end_game()  # Ja spēle ir beigusies, izsauc beigu funkciju
         
     
@@ -161,14 +166,14 @@ class GameGUI:
         # Iegūst spēles stāvokli no GameEngine un atjaunina GUI elementus
         state = self.engine.get_state()
         self.current_number.config(text=str(state["skaitlis"]))
-        print(self.player_vs_ai.get())
+        
         
 
         if self.player_vs_ai.get():
             self.human_score.config(text=str(state["cilvēks"]))
             self.computer_score.config(text=str(state["dators"]))
         else:
-            print('a')
+            
             self.human_score.config(text=str(state["dators1"]))
             self.computer_score.config(text=str(state["dators2"]))
 
@@ -201,12 +206,6 @@ class GameGUI:
         self.labelWinner.pack()
 
 
-        print(self.labelWinner.cget("text"))
-        print(self.labelWinner)
-        print(self.labelWinner.winfo_exists())
-
-
-        print("after print",winner)
         
     
     def restart_game(self):
@@ -253,7 +252,7 @@ class gameNode:
 class gameTree:
     def __init__(self, number):
         self.root = self.build(gameNode(number, 0, 0, "player", None, None, 0, -6000), 1)
-        self.print_tree(self.root)
+        
     
 
     def build(self, node, num):
@@ -281,7 +280,7 @@ class gameTree:
                     self.build(node.right, num)
 
                 if(node.number % 3 == 0):
-                    heuristicValue = node.player1Pts - node.player2Pts + 2
+                    heuristicValue = node.player1Pts - node.player2Pts - 2
                     node.left = gameNode(node.number//3, node.player1Pts+3, node.player2Pts, nt, None, None, heuristicValue, -6000)
                     self.build(node.left, num)
             
@@ -424,8 +423,6 @@ class GameEngine:
 
     def make_ai_move(self):
         # Veic datora (AI) gājienu, ja nākamais gājiens ir "computer" tad minimizē, ja "player" tad maximizē
-        
-
         isMaximising = False
         if self.current.currentPlayer == "computer":
             isMaximising = False
